@@ -1,4 +1,4 @@
-import time
+from time import sleep
 import openpyxl
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -17,47 +17,14 @@ wait = WebDriverWait(driver, 10)
 
 
 # abrindo a pagina. obs: irei trocar para que a pessoa escolha qual a opção.
-driver.get("https://www.vivareal.com.br/venda/sp/santos/casa_residencial/3-quartos/#banheiros=2&onde=Brasil,S%C3%A3o%20Paulo,Santos,,,,,,BR%3ESao%20Paulo%3ENULL%3ESantos,,,&ordenar-por=preco:ASC&preco-ate=500000&quartos=3&vagas=1")
+#driver.get("https://www.vivareal.com.br/venda/sp/santos/casa_residencial/3-quartos/#banheiros=2&onde=Brasil,S%C3%A3o%20Paulo,Santos,,,,,,BR%3ESao%20Paulo%3ENULL%3ESantos,,,&ordenar-por=preco:ASC&preco-ate=500000&quartos=3&vagas=1")
+driver.get('https://www.vivareal.com.br/venda/?itl_id=1000177&itl_name=vivareal_-_link-header_comprar_to_vivareal_resultado-pesquisa')
 
-
-
-
-# while True:
-#     # fazendo isso para que o site carregue com o número correto de total de casas encontradas. obs: o site as vezes pode demorar para carregar.
-#     # as vezes o site carrega com ex: 4.500 total de casas e após 3seg ele carrega novamente com um total de 40 casas.
-
-
-#     # criando uma variável para pegar o primeiro total de casas
-#     total_casas = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="js-site-main"]/div[2]/div[1]/section/header/div/div/div[1]/div/h1/strong')))
-#     total_casas_text = total_casas.text
-#     time.sleep(5)
-
-
-#     # criando uma variável para pegar o numero de total de casas após 3seg
-#     total_casas_atualizado = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="js-site-main"]/div[2]/div[1]/section/header/div/div/div[1]/div/h1/strong')))
-#     total_casas_atualizado_text = total_casas_atualizado.text
-
-
-#     # fazendo uma verificação para saber se o valor total de casas está correto.
-#     if total_casas_atualizado_text != total_casas_text: # se for diferente quer dizer que o site está funcionando normalmente.
-#         break
-#     else: # se não, irei recarregar.
-#         print('Site com lentidão, irei recarregar.')
-#         driver.refresh()
-    
-
-# lista para todos os links
 links = []
+n = 0
 
-articles = []
-
-# para pegar os articles
-
-time.sleep(3)
-# loop para passar de pagina
-
-while True:
-      # Aceitar os cookies se o aviso estiver presente
+while n != 2:
+     # Aceitar os cookies se o aviso estiver presente
     try:
         cookie_notification = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'p.cookie-notifier__paragraph')))
         if cookie_notification.is_displayed():
@@ -65,32 +32,47 @@ while True:
     except TimeoutException:
         pass  # Se não houver aviso de cookies, continue normalmente
 
-    # Clicar no botão de próxima página
-    driver.execute_script("arguments[0].click();", driver.find_element(By.XPATH, '//*[@id="js-site-main"]/div[2]/div[1]/section/div[2]/div[2]/div/ul/li[4]/button'))
+    try:
+        
+        articles = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'article.property-card__container.js-property-card')))
+        print('passei pelo try/articles get')
+        
+    except:
+        print('Deu erro')
+        break
 
-    articles = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'article.property-card__container.js-property-card')))
-    driver.find_element(By.XPATH, '//*[@id="js-site-main"]/div[2]/div[1]/section/div[2]/div[2]/div/ul/li[4]/button').click()
-    time.sleep(2)
-    break
+    sleep(1)
+    # procurando os links dentro do article
+    for article in articles:
+        # Encontrar o primeiro link dentro de cada 'article'
+        link_element = article.find_element(By.CSS_SELECTOR, 'a')
+        link = link_element.get_attribute('href')
+        
+        #Adicionar o link à lista de links
 
+        if link in links:
+            
+            print('Um link repetido', link)
+            index_intem_repetido = links.index(link)
+            print('Um link repetido', links[index_intem_repetido])
+            print('-'*20)
 
+            continue
 
+        if link not in links:
+                
+            links.append(link)
+        else:
+            print('Deu erro no if link')
+            break
 
+    sleep(5)
 
-
-
-
-
-
-
-
-# procurando os links dentro do article
-for article in articles:
-    # Encontrar o primeiro link dentro de cada 'article'
-    link_element = article.find_element(By.CSS_SELECTOR, 'a')
-    link = link_element.get_attribute('href')
-    # Adicionar o link à lista de links
-    links.append(link)
+    elements = driver.find_elements(By.CSS_SELECTOR, 'ul.pagination__wrapper > li.pagination__item')
+    ultimo_li = elements[-1]
+    botao = ultimo_li.find_element(By.CSS_SELECTOR, 'button.js-change-page')
+    botao.click()
+    n += 1
 
 
 # abrindo o openpyxl
@@ -110,7 +92,7 @@ if links:
         # abrindo o link
         driver.get(link)
 
-        time.sleep(1.3)# sleep para que o site não trave com repetição de refresh
+        sleep(2)# sleep para que o site não trave com repetição de refresh
         # pegando o valor da casa/apartamento
         valor = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="js-site-main"]/div[2]/div[2]/div[1]/div/div[1]/div/h3')))
 
