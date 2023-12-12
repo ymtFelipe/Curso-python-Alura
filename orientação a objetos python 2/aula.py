@@ -1,9 +1,18 @@
 class Funcionario:
+    def __init__(self, nome) -> None:
+        self.nome = nome
+
     def registra_horas(self, horas):
         print('Horas registradas...')
 
     def mostrar_tarefas(self):
         print('Fez muita coisa...')
+
+class Hipster:
+    def __str__(self):
+        return f'Hipster, {self.nome}'
+
+
 
 class Caelum(Funcionario):
     def mostrar_tarefas(self):
@@ -26,13 +35,8 @@ class Junior(Alura):
 class Pleno(Alura, Caelum  ):
     pass
 
+class Senior(Alura, Caelum, Hipster):
+    pass
 
-jose = Junior()
-jose.busca_perguntas_sem_resposta()
-jose.mostrar_tarefas()
-
-luan = Pleno()
-luan.busca_perguntas_sem_resposta()
-luan.busca_cursos_do_mes()
-
-luan.mostrar_tarefas()
+luan = Senior('Luan')
+print(luan)
