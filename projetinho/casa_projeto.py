@@ -78,11 +78,10 @@ while n != 2:
 # abrindo o openpyxl
 book = openpyxl.Workbook()
 
-# creando uma aba nova
-book.create_sheet('Casas')
 
 # colocando na aba 'Sheet'
 casas = book['Sheet']
+
 # primeira linha da planilha
 casas.append(['Valor', 'Endereço', 'Area', 'Quartos', 'Banheiros', 'Garagem', 'Link'])
 
