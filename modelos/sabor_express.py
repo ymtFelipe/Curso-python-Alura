@@ -1,9 +1,12 @@
+from modelos.avaliacao import Avaliacao
+
 class Restaurante:
     resturantes = []
     def __init__(self, nome, categoria):
         self._nome = nome
         self.categoria = categoria
         self._ativo = False
+        self._avaliacao = []
         Restaurante.resturantes.append(self)
     
     
@@ -23,12 +26,10 @@ class Restaurante:
     def altenar_estado(self):
         self._ativo = not self._ativo
 
+    def receber_avaliacao(self, cliente, nota):
+        avaliacao = Avaliacao(cliente, nota)
+        self._avaliacao.append(avaliacao)
 
     
 
     
-restaurante1 = Restaurante('pushi', 'japonesa')
-restaurante2 = Restaurante('pizza Express', 'Italiana')
-restaurante2.altenar_estado()
-
-Restaurante.listar_restaurantes()
